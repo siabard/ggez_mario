@@ -30,10 +30,14 @@ pub const PADDLE_SPEED: f32 = 200.;
 pub mod ball;
 pub mod block;
 pub mod paddle;
+pub mod tile;
+pub mod tile_map;
 
 pub use crate::objects::ball::Ball;
 pub use crate::objects::block::Block;
 pub use crate::objects::paddle::Paddle;
+pub use crate::objects::tile::Tile;
+pub use crate::objects::tile_map::TileMap;
 
 #[derive(PartialEq, Debug)]
 pub enum CollideFlag {
@@ -142,4 +146,9 @@ pub fn init_global_sprite(reg: &mut Reg) {
     // hearts
     reg.register_heart(HEARTS_FLAG, 0., 0., 10., 9.);
     reg.register_heart(HEARTS_FLAG + 1, 10., 0., 10., 9.);
+}
+
+pub fn init_tiles(reg: &mut Reg) {
+    reg.register_tile(1, 0., 0., 32., 32.);
+    reg.register_tile(2, 32., 0., 32., 32.);
 }

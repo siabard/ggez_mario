@@ -44,8 +44,8 @@ impl Game {
         // 초기에는 InitState를 넣는다.
 
         let mut reg = Reg::new();
-        reg.init_sprite(ctx, Path::new("/breakout.png"));
-        reg.init_heart(ctx, Path::new("/hearts.png"));
+        reg.init_tiles(ctx, Path::new("/tile.png"));
+
         let init_state = states::InitState::new(ctx, &mut reg);
 
         let buffer = ggez::graphics::Canvas::new(

@@ -51,13 +51,21 @@ impl Quad {
     pub fn draw_sprite(&mut self, ctx: &mut Context, key: i32, x: f32, y: f32) {
         let dest = na::Point2::new(x, y);
 
-        ggez::graphics::draw(
-            ctx,
-            &self.source,
-            ggez::graphics::DrawParam::new()
-                .dest(dest)
-                .src(*self.sprite.get(&key).unwrap()),
-        )
-        .unwrap();
+        match self.sprite.get(&key) {
+            Some(sp) => {
+                ggez::graphics::draw(
+                    ctx,
+                    &self.source,
+                    ggez::graphics::DrawParam::new()
+                        .dest(dest)
+                        .src(*sp)
+                        .color(ggez::graphics::WHITE),
+                )
+                .unwrap();
+
+                ()
+            }
+            None => (),
+        }
     }
 }

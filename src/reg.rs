@@ -18,6 +18,7 @@ pub struct Reg {
     pub i32_values: HashMap<String, i32>,
     pub sprites: Option<Quad>,
     pub hearts: Option<Quad>,
+    pub tiles: Option<Quad>,
 }
 
 impl Reg {
@@ -33,6 +34,7 @@ impl Reg {
             i32_values: HashMap::<String, i32>::new(),
             sprites: None,
             hearts: None,
+            tiles: None,
         }
     }
 
@@ -43,6 +45,11 @@ impl Reg {
 
     pub fn init_heart(&mut self, ctx: &mut Context, path: &Path) {
         self.hearts = Some(Quad::new(ctx, path));
+    }
+
+    // Tile 초기화
+    pub fn init_tiles(&mut self, ctx: &mut Context, path: &Path) {
+        self.tiles = Some(Quad::new(ctx, path));
     }
 
     // Heart 생성하기
@@ -67,6 +74,17 @@ impl Reg {
         }
     }
 
+    // Tile을 등록하기
+    pub fn register_tile(&mut self, key: i32, x: f32, y: f32, w: f32, h: f32) {
+        match &mut self.tiles {
+            Some(sp) => {
+                (*sp).add_sprite(key, x, y, w, h);
+                ()
+            }
+            None => (),
+        }
+    }
+
     // sprite drawing
     pub fn draw_sprite(&mut self, ctx: &mut Context, key: i32, x: f32, y: f32) {
         self.sprites.as_mut().unwrap().draw_sprite(ctx, key, x, y)
@@ -75,6 +93,11 @@ impl Reg {
     // heart drawing
     pub fn draw_heart(&mut self, ctx: &mut Context, key: i32, x: f32, y: f32) {
         self.hearts.as_mut().unwrap().draw_sprite(ctx, key, x, y)
+    }
+
+    // tiles drawing
+    pub fn draw_tile(&mut self, ctx: &mut Context, key: i32, x: f32, y: f32) {
+        self.tiles.as_mut().unwrap().draw_sprite(ctx, key, x, y)
     }
 
     // 방금 전까지는 안 눌린 것인지 확인

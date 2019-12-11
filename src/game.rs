@@ -50,7 +50,7 @@ impl Game {
 
         let init_state = states::InitState::new(ctx, &mut reg);
 
-        let camera = Camera::new(ctx, 0., 0., VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        let camera = Camera::new(ctx, 0., 0., VIRTUAL_WIDTH, VIRTUAL_HEIGHT, 0., 0.);
 
         let s = Game {
             states: vec![Box::new(init_state)],
@@ -122,9 +122,6 @@ impl event::EventHandler for Game {
     /// * `ctx` - Context 객체
     ///
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        // 이미지를 출력할 기점을 정한다.
-        let dest_point = na::Point2::new(0., 0.);
-
         // 전체 화면을 가상의 크기로 설정한다.
         graphics::set_screen_coordinates(
             ctx,
@@ -132,32 +129,14 @@ impl event::EventHandler for Game {
         )
         .unwrap();
 
-        // Canvas에 이미지를 그리도록 변경(double buffering)
-        graphics::set_canvas(ctx, Some(&self.camera.buffer));
-
         // 현재 states 값을 얻어와 해당 states의 render 를 실행한다.
-        // 해당하는 renderings 은 buffer 저장된다.
 
         match self.states.last_mut() {
             Some(current_state) => {
-                current_state.render(ctx, &mut self.reg, &mut self.camera.buffer);
-
-                // 이제 메인 윈도우에 그림
-                graphics::set_canvas(ctx, None);
-
-                // canvas buffer를 윈도우에 출력
-                graphics::draw(
-                    ctx,
-                    &self.camera.buffer,
-                    graphics::DrawParam::new()
-                        .dest(dest_point)
-                        .src(graphics::Rect::new(0., 0., 1., 1.)),
-                )?;
+                current_state.render(ctx, &mut self.reg);
             }
             None => (),
         }
-
-        // 게임이 일시 정지이면 화면에 일시 정지를 출력한다.
 
         graphics::present(ctx)?;
 

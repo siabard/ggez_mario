@@ -5,14 +5,16 @@ use ggez::Context;
 
 pub struct TileMap {
     kind: Vec<i32>,
-    x: u32, // 가로 갯수
-    y: u32, // 세로 갯수
-    w: u32, // 타일 한 개의 너비
-    h: u32, // 타일 한 개의 높이
+    x: u32,  // 가로 갯수
+    y: u32,  // 세로 갯수
+    w: u32,  // 타일 한 개의 너비
+    h: u32,  // 타일 한 개의 높이
+    ox: f32, // 가상의 화면에서 해당 타일이 노출될 때 시작할 x 기점
+    oy: f32, // 가상의 화면에서 해당 타일이 노출될 때 시작할 y 기점
 }
 
 impl TileMap {
-    pub fn new(x: u32, y: u32) -> TileMap {
+    pub fn new(x: u32, y: u32, ox: f32, oy: f32) -> TileMap {
         let mut tile: Vec<i32> = vec![];
         for tx in 0..x {
             for ty in 0..y {
@@ -26,6 +28,8 @@ impl TileMap {
             y,
             w: 0,
             h: 0,
+            ox,
+            oy,
         }
     }
 
@@ -47,19 +51,28 @@ impl TileMap {
     }
 
     /// 전체 타일을 그린다.
-    pub fn render(&self, ctx: &mut Context, reg: &mut Reg, ox: f32, oy: f32) {
+    /// 다만 타일을 그리더라도,
+    /// Clipping 영역을 벗어나면 못그린다.
+    /// cx, cy, cw, ch -> 카메라의 x,y,w,h 영역
+    pub fn render(&self, ctx: &mut Context, reg: &mut Reg, cx: f32, cy: f32, cw: f32, ch: f32) {
         for ty in 0..self.y {
             for tx in 0..self.x {
                 let pos: usize = (ty * self.x + tx) as usize;
 
                 match self.kind.get(pos) {
                     Some(elem) => {
-                        reg.draw_tile(
-                            ctx,
-                            *elem,
-                            ox + (tx * self.w) as f32,
-                            oy + (ty * self.h) as f32,
-                        );
+                        let sx: f32 = self.ox + (tx * self.w) as f32; // 원 기점에서 해당 타일을 그리기 시작할 X 위치
+                        let sy: f32 = self.oy + (ty * self.h) as f32; // 윈 기점에서 해당 타일을 그리기 시작할 Y 위치
+
+                        // 카메라 영역에 타일이 노출될 수 있으면 (일종의 Collision q이라생)
+                        // 출력한다.
+                        if (sx < cx + cw)
+                            && (sx + self.w as f32 > cx)
+                            && (sy < cy + ch)
+                            && (sy + self.h as f32 > cy)
+                        {
+                            reg.draw_tile(ctx, *elem, sx - cx, sy - cy);
+                        }
                         ()
                     }
                     None => (),

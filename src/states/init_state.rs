@@ -2,6 +2,7 @@ use crate::game;
 
 use crate::objects::*;
 
+use crate::camera::Camera;
 use crate::reg::Reg;
 use ggez::audio;
 
@@ -12,14 +13,27 @@ use ggez::Context;
 
 use crate::states::*;
 
+/// 이제 각 Statet에서는 내용을 출력할 Camera를 지정해야한다.
 pub struct InitState {
     tile_map: TileMap,
+    camera: Camera,
 }
 
 impl InitState {
     pub fn new(ctx: &mut Context, reg: &mut Reg) -> InitState {
         init_tiles(reg);
-        let mut tile_map = TileMap::new(5, 5);
+        let mut tile_map = TileMap::new(5, 5, 0., 0.);
+
+        // 메인 카메라는 화면 크기만큼 출력한다.
+        let camera = Camera::new(
+            ctx,
+            15.,
+            15.,
+            game::VIRTUAL_WIDTH,
+            game::VIRTUAL_HEIGHT,
+            0.,
+            0.,
+        );
 
         tile_map.set_tile(1, 0, 0);
         tile_map.set_tile(1, 1, 0);
@@ -47,7 +61,7 @@ impl InitState {
 
         tile_map.set_wh((32, 32));
 
-        let state = InitState { tile_map };
+        let state = InitState { tile_map, camera };
 
         state
     }
@@ -59,17 +73,39 @@ impl States for InitState {
         StateResult::Void
     }
 
-    /// 모든 Render는 이제 자체에 포함된 buffer에만 그린다.
-    fn render(&mut self, ctx: &mut Context, reg: &mut Reg, buffer: &mut Canvas) -> StateResult {
-        ggez::graphics::set_canvas(ctx, Some(buffer));
+    /// 모든 Render는 이제 자체에 포함된 camera에 그린다.
+    /// 이때 camera의 영역에 포함되어야만 그려야한다.
+
+    fn render(&mut self, ctx: &mut Context, reg: &mut Reg) -> StateResult {
+        ggez::graphics::set_canvas(ctx, Some(&self.camera.buffer));
 
         graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
 
-        self.tile_map.render(ctx, reg, 0., 0.);
+        self.tile_map.render(
+            ctx,
+            reg,
+            self.camera.x,
+            self.camera.y,
+            self.camera.w,
+            self.camera.h,
+        );
 
         graphics::present(ctx).unwrap();
 
         ggez::graphics::set_canvas(ctx, None);
+
+        // canvas buffer를 윈도우에 출력
+        //
+        let dest_point = na::Point2::new(0., 0.);
+        graphics::draw(
+            ctx,
+            &self.camera.buffer,
+            graphics::DrawParam::new()
+                .dest(dest_point)
+                .src(graphics::Rect::new(0., 0., 1., 1.)),
+        )
+        .unwrap();
+
         StateResult::Void
     }
 }

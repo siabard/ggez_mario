@@ -3,27 +3,18 @@
 //! InitState : 초기 시작 상태
 //! MenuState : 메뉴 상태
 
-
-
 use crate::objects::*;
 
 use crate::reg::Reg;
 
 use ggez::audio::SoundSource;
-use ggez::graphics::{Canvas};
-
+use ggez::graphics::Canvas;
 
 use ggez::Context;
 
-pub mod end_state;
 pub mod init_state;
-pub mod pause_state;
-pub mod play_state;
 
-pub use end_state::EndState;
 pub use init_state::InitState;
-pub use pause_state::PauseState;
-pub use play_state::PlayState;
 
 pub enum StateResult {
     PushState(Box<dyn States>),
@@ -34,7 +25,7 @@ pub enum StateResult {
 
 pub trait States {
     fn update(&mut self, ctx: &mut Context, reg: &mut Reg, dt: f32) -> StateResult;
-    fn render(&mut self, ctx: &mut Context, reg: &mut Reg, buffer: &mut Canvas) -> StateResult;
+    fn render(&mut self, ctx: &mut Context, reg: &mut Reg) -> StateResult;
 }
 
 pub fn play_sound_once(name: &String, reg: &mut Reg) {

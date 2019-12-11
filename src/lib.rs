@@ -1,3 +1,4 @@
+pub mod camera;
 pub mod game;
 pub mod level_maker;
 pub mod objects;

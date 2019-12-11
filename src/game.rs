@@ -9,6 +9,7 @@ use ggez::nalgebra as na;
 use ggez::timer;
 use ggez::{Context, GameResult};
 
+use crate::camera::Camera;
 use crate::reg::Reg;
 use crate::states;
 use crate::states::StateResult;
@@ -28,7 +29,8 @@ pub struct Game {
     // 게임내 각 state의 벡터 (stack식)
     states: Vec<Box<dyn states::States>>,
     // 게임내 double bufferingmf 위한 버퍼
-    buffer: ggez::graphics::Canvas,
+    camera: Camera,
+
     // 게임내 데이터 보존소
     reg: Reg,
 }
@@ -48,17 +50,11 @@ impl Game {
 
         let init_state = states::InitState::new(ctx, &mut reg);
 
-        let buffer = ggez::graphics::Canvas::new(
-            ctx,
-            VIRTUAL_WIDTH as u16,
-            VIRTUAL_HEIGHT as u16,
-            ggez::conf::NumSamples::One,
-        )
-        .unwrap();
+        let camera = Camera::new(ctx, 0., 0., VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         let s = Game {
             states: vec![Box::new(init_state)],
-            buffer,
+            camera,
             reg,
         };
         Ok(s)
@@ -137,14 +133,14 @@ impl event::EventHandler for Game {
         .unwrap();
 
         // Canvas에 이미지를 그리도록 변경(double buffering)
-        graphics::set_canvas(ctx, Some(&self.buffer));
+        graphics::set_canvas(ctx, Some(&self.camera.buffer));
 
         // 현재 states 값을 얻어와 해당 states의 render 를 실행한다.
         // 해당하는 renderings 은 buffer 저장된다.
 
         match self.states.last_mut() {
             Some(current_state) => {
-                current_state.render(ctx, &mut self.reg, &mut self.buffer);
+                current_state.render(ctx, &mut self.reg, &mut self.camera.buffer);
 
                 // 이제 메인 윈도우에 그림
                 graphics::set_canvas(ctx, None);
@@ -152,7 +148,7 @@ impl event::EventHandler for Game {
                 // canvas buffer를 윈도우에 출력
                 graphics::draw(
                     ctx,
-                    &self.buffer,
+                    &self.camera.buffer,
                     graphics::DrawParam::new()
                         .dest(dest_point)
                         .src(graphics::Rect::new(0., 0., 1., 1.)),

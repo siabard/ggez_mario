@@ -30,12 +30,14 @@ pub const PADDLE_SPEED: f32 = 200.;
 pub mod ball;
 pub mod block;
 pub mod paddle;
+pub mod player;
 pub mod tile;
 pub mod tile_map;
 
 pub use crate::objects::ball::Ball;
 pub use crate::objects::block::Block;
 pub use crate::objects::paddle::Paddle;
+pub use crate::objects::player::Player;
 pub use crate::objects::tile::Tile;
 pub use crate::objects::tile_map::TileMap;
 
@@ -46,6 +48,10 @@ pub enum CollideFlag {
     LEFT,
     RIGHT,
     NONE,
+}
+
+pub trait Animate {
+    fn animate(&mut self, dt: f32);
 }
 
 pub trait Object {
@@ -151,4 +157,11 @@ pub fn init_global_sprite(reg: &mut Reg) {
 pub fn init_tiles(reg: &mut Reg) {
     reg.register_tile(1, 0., 0., 32., 32.);
     reg.register_tile(2, 32., 0., 32., 32.);
+}
+
+pub fn init_player(reg: &mut Reg) {
+    reg.register_sprite(PADDLE_FLAG + 0, 0., 6., 16., 22.);
+    reg.register_sprite(PADDLE_FLAG + 1, 16., 6., 16., 22.);
+    reg.register_sprite(PADDLE_FLAG + 2, 32., 6., 16., 22.);
+    reg.register_sprite(PADDLE_FLAG + 3, 48., 6., 16., 22.);
 }

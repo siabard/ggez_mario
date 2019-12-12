@@ -16,6 +16,7 @@ use crate::states::*;
 /// 이제 각 Statet에서는 내용을 출력할 Camera를 지정해야한다.
 pub struct InitState {
     tile_map: TileMap,
+    player: Player,
     camera: Camera,
 }
 
@@ -34,6 +35,8 @@ impl InitState {
             0.,
             0.,
         );
+
+        let player = Player::new();
 
         tile_map.set_tile(1, 0, 0);
         tile_map.set_tile(1, 1, 0);
@@ -61,7 +64,12 @@ impl InitState {
 
         tile_map.set_wh((32, 32));
 
-        let state = InitState { tile_map, camera };
+        crate::objects::init_player(reg);
+        let state = InitState {
+            tile_map,
+            player,
+            camera,
+        };
 
         state
     }
@@ -69,9 +77,10 @@ impl InitState {
 
 // 메뉴 화면
 impl States for InitState {
-    fn update(&mut self, ctx: &mut Context, reg: &mut Reg, _dt: f32) -> StateResult {
+    fn update(&mut self, ctx: &mut Context, reg: &mut Reg, dt: f32) -> StateResult {
         // 캔버스를 가로로 한픽셀씩 옮긴다.
         self.camera.x = self.camera.x + 1.;
+        self.player.update(ctx, reg, dt);
         StateResult::Void
     }
 
@@ -81,7 +90,7 @@ impl States for InitState {
     fn render(&mut self, ctx: &mut Context, reg: &mut Reg) -> StateResult {
         ggez::graphics::set_canvas(ctx, Some(&self.camera.buffer));
 
-        graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
+        graphics::clear(ctx, [0.0, 0.0, 0.0, 1.].into());
 
         self.tile_map.render(
             ctx,
@@ -92,6 +101,7 @@ impl States for InitState {
             self.camera.h,
         );
 
+        self.player.draw(ctx, reg);
         graphics::present(ctx).unwrap();
 
         ggez::graphics::set_canvas(ctx, None);

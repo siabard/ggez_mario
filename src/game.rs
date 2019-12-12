@@ -47,6 +47,7 @@ impl Game {
 
         let mut reg = Reg::new();
         reg.init_tiles(ctx, Path::new("/tile.png"));
+        reg.init_sprite(ctx, Path::new("/character.png"));
 
         let init_state = states::InitState::new(ctx, &mut reg);
 

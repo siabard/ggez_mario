@@ -17,8 +17,8 @@ use crate::states::StateResult;
 use std::path::Path;
 
 /// 실제 물리적 해상도
-pub const WINDOW_WIDTH: f32 = 1280.;
-pub const WINDOW_HEIGHT: f32 = 720.;
+pub const WINDOW_WIDTH: f32 = 864.;
+pub const WINDOW_HEIGHT: f32 = 486.;
 
 /// 가상해상도
 pub const VIRTUAL_WIDTH: f32 = 432.;

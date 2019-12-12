@@ -27,8 +27,8 @@ impl InitState {
         // 메인 카메라는 화면 크기만큼 출력한다.
         let camera = Camera::new(
             ctx,
-            15.,
-            15.,
+            0.,
+            0.,
             game::VIRTUAL_WIDTH,
             game::VIRTUAL_HEIGHT,
             0.,
@@ -70,6 +70,8 @@ impl InitState {
 // 메뉴 화면
 impl States for InitState {
     fn update(&mut self, ctx: &mut Context, reg: &mut Reg, _dt: f32) -> StateResult {
+        // 캔버스를 가로로 한픽셀씩 옮긴다.
+        self.camera.x = self.camera.x + 1.;
         StateResult::Void
     }
 

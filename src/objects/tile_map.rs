@@ -72,6 +72,7 @@ impl TileMap {
                             && (sy + self.h as f32 > cy)
                         {
                             reg.draw_tile(ctx, *elem, sx - cx, sy - cy);
+                        } else {
                         }
                         ()
                     }

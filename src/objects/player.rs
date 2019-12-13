@@ -1,3 +1,4 @@
+use crate::camera::Camera;
 use crate::objects::*;
 use ggez;
 
@@ -12,6 +13,8 @@ pub struct Player {
     pub current_frame: usize,
     pub timer: f32,
     pub anim_span: f32,
+    pub ox: f32,
+    pub oy: f32,
 }
 
 impl Player {
@@ -32,7 +35,58 @@ impl Player {
             timer: 0.,
             current_frame: 0,
             anim_span: 2.,
+            ox: 0.,
+            oy: 0.,
         }
+    }
+
+    pub fn transform(&mut self, camera: &mut Camera) {
+        // camera 좌표를 토대로 ox / oy를 설정한다.
+        // ox, oy : 화면에 drawingl되는 위치
+        let mut cx = camera.x;
+        let mut cy = camera.y;
+
+        // x, y가 폭의 10% 내외영역이면
+        // 카메라의 x, y를 안전한 거리만큼 옮겨야한다.
+        println!(
+            "camera x: {}, player x: {}, span : {}",
+            cx,
+            self.x,
+            (camera.w * 0.1)
+        );
+        if self.x <= cx + camera.w * 0.1 {
+            cx = cx - (cx + camera.w * 0.1 - self.x);
+
+            if cx < 0. {
+                cx = 0.
+            }
+        } else if self.x >= cx + camera.w * 0.9 {
+            cx = self.x - camera.w * 0.9;
+
+            if cx > 1000. - camera.w {
+                cx = 1000. - camera.w;
+            }
+        }
+
+        if self.y <= cy + camera.h * 0.1 {
+            cy = cy - (cy + camera.h * 0.1 - self.y);
+
+            if cy < 0. {
+                cy = 0.
+            }
+        } else if self.y >= cy + camera.h * 0.9 {
+            cy = self.y - camera.h * 0.9;
+
+            if cy > 1000. - camera.h {
+                cy = 1000. - camera.h;
+            }
+        }
+
+        camera.x = cx;
+        camera.y = cy;
+
+        self.ox = self.x - cx;
+        self.oy = self.y - cy;
     }
 }
 
@@ -61,12 +115,11 @@ impl Object for Player {
 
     fn draw(&mut self, ctx: &mut Context, reg: &mut Reg) {
         let sprite = *(self.frames.get(self.current_frame).unwrap());
-        println!("{}", sprite);
         reg.draw_sprite(
             ctx,
             *(self.frames.get(self.current_frame).unwrap()),
-            self.x,
-            self.y,
+            self.ox,
+            self.oy,
         );
     }
 

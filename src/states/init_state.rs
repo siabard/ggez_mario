@@ -5,7 +5,7 @@ use crate::objects::*;
 use crate::camera::Camera;
 use crate::reg::Reg;
 use ggez::audio;
-
+use ggez::event::*;
 use ggez::graphics::{self, Canvas};
 use ggez::input::keyboard::KeyCode;
 use ggez::nalgebra as na;
@@ -45,10 +45,10 @@ impl InitState {
         tile_map.set_tile(1, 4, 0);
 
         tile_map.set_tile(2, 0, 1);
-        //tile_map.set_tile(2, 1, 1);
-        //tile_map.set_tile(2, 2, 1);
-        //tile_map.set_tile(2, 3, 1);
-        //tile_map.set_tile(2, 4, 1);
+        tile_map.set_tile(2, 1, 1);
+        tile_map.set_tile(2, 2, 1);
+        tile_map.set_tile(2, 3, 1);
+        tile_map.set_tile(2, 4, 1);
 
         tile_map.set_tile(1, 0, 2);
         tile_map.set_tile(1, 1, 2);
@@ -57,10 +57,10 @@ impl InitState {
         tile_map.set_tile(1, 4, 2);
 
         tile_map.set_tile(2, 0, 3);
-        //tile_map.set_tile(2, 1, 3);
-        //tile_map.set_tile(2, 2, 3);
-        //tile_map.set_tile(2, 3, 3);
-        //tile_map.set_tile(2, 4, 3);
+        tile_map.set_tile(2, 1, 3);
+        tile_map.set_tile(2, 2, 3);
+        tile_map.set_tile(2, 3, 3);
+        tile_map.set_tile(2, 4, 3);
 
         tile_map.set_wh((32, 32));
 
@@ -78,8 +78,23 @@ impl InitState {
 // 메뉴 화면
 impl States for InitState {
     fn update(&mut self, ctx: &mut Context, reg: &mut Reg, dt: f32) -> StateResult {
-        // 캔버스를 가로로 한픽셀씩 옮긴다.
-        self.camera.x = self.camera.x + 1.;
+        // 좌우 이동 확인
+        if ggez::input::keyboard::is_key_pressed(ctx, KeyCode::Left) {
+            self.player.x = self.player.x - 1.;
+        }
+
+        if ggez::input::keyboard::is_key_pressed(ctx, KeyCode::Right) {
+            self.player.x = self.player.x + 1.;
+        }
+
+        if ggez::input::keyboard::is_key_pressed(ctx, KeyCode::Up) {
+            self.player.y = self.player.y - 1.;
+        }
+
+        if ggez::input::keyboard::is_key_pressed(ctx, KeyCode::Down) {
+            self.player.y = self.player.y + 1.;
+        }
+
         self.player.update(ctx, reg, dt);
         StateResult::Void
     }
@@ -88,7 +103,7 @@ impl States for InitState {
     /// 이때 camera의 영역에 포함되어야만 그려야한다.
 
     fn render(&mut self, ctx: &mut Context, reg: &mut Reg) -> StateResult {
-        ggez::graphics::set_canvas(ctx, Some(&self.camera.buffer));
+        //ggez::graphics::set_canvas(ctx, Some(&self.camera.buffer));
 
         graphics::clear(ctx, [0.0, 0.0, 0.0, 1.].into());
 
@@ -101,13 +116,15 @@ impl States for InitState {
             self.camera.h,
         );
 
+        self.player.transform(&mut self.camera);
         self.player.draw(ctx, reg);
         graphics::present(ctx).unwrap();
 
-        ggez::graphics::set_canvas(ctx, None);
+        //ggez::graphics::set_canvas(ctx, None);
 
         // canvas buffer를 윈도우에 출력
         //
+        /*
         let dest_point = na::Point2::new(0., 0.);
         graphics::draw(
             ctx,
@@ -117,7 +134,7 @@ impl States for InitState {
                 .src(graphics::Rect::new(0., 0., 1., 1.)),
         )
         .unwrap();
-
+        */
         StateResult::Void
     }
 }
